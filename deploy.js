@@ -2,29 +2,35 @@ var control = require('control'),
   task = control.task,
   path = require('path');
 
-task('prod', 'Config for web', function () {
+task('prod', 'Defines production environment', function () {
   var config = {
-    'x.x.x.x': {
-      user: 'root'
-    }
+    'webserver01': { user: 'root' }
   };
 
   return control.controllers(config);
 });
 
-task('website', 'Deploys website', function (controller, archive) {
-  if (!archive) {
-    throw 'please specify the archive to deploy';
+task('web', 'Deploys website', function (controller, archivePath) {
+  if (!archivePath) {
+    console.log(' please specify the archive to deploy...');
+    return;
   }
 
-  var basename = path.basename(archive),
-    remoteDir = '/tmp',
-    remotePath = path.join(remoteDir, basename),
-    remoteAppDir = path.join(remoteDir, 'myapp');
+  var archiveFilename = path.basename(archivePath),
+    remoteDeployDir = '/root',
+    remoteArchivePath = path.join(remoteDeployDir, archiveFilename),
+    unpackedAppDirectoryName = path.basename(remoteArchivePath, '.tar.gz')
+    remoteAppDir = path.join(remoteDeployDir, unpackedAppDirectoryName);
 
-  controller.scp(archive, remoteDir, function() {
-    controller.ssh('tar xvf ' + remotePath + ' -C ' + remoteAppDir, function () {
-      //controller.ssh("sh -c 'cd " + remoteAppDir + " && node myapp.js'");
+  controller.scp(archivePath, remoteDeployDir, function() {
+    controller.ssh('tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir, function () {
+      controller.ssh('cd ' + remoteAppDir + ' && npm install --production', function() {
+        controller.ssh('killall node || true', function() {
+          controller.ssh('ln -s ' + remoteAppDir + ' /root/weareawake-current', function() {
+            controller.ssh('node /root/weareawake-current/app.js');
+          });
+        });
+      });
     });
   });
 });

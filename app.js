@@ -24,7 +24,7 @@ app.engine('handlebars', exphbs({
   }
 }));
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 8000);
 app.set('view engine', 'handlebars');
 app.enable('trust proxy');
 

@@ -4,3 +4,10 @@
 control.log
 archives/
 node_modules/
+static/js/app/handlebars-partials.js
+static/js/app.map.js
+static/js/app.min.js
+static/js/lib.map.js
+static/js/lib.min.js
+static/css/app.map.css
+static/css/app.min.css

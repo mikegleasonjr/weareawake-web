@@ -1,8 +1,6 @@
 module.exports = function(grunt) {
-
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    pkg2: { 'hello':'world'},
 
     // -----------------------------------------
 
@@ -104,13 +102,22 @@ module.exports = function(grunt) {
       main: {
         options: {
           mode: 'tgz',
-          archive: 'archives/<%= pkg.name %>-<%= pkg.version %>-<%= pkg2.hello %>.tar.gz'
+          archive: 'archives/<%= pkg.name %>-<%= pkg.version %>-<%= pkg.revision %>.tar.gz'
         },
         files: [{
             src: ['app.js', 'package.json', 'routes/**/*.*', 'static/**/*.*', 'views/**/*.*'],
-            dest:'<%= pkg.name %>-<%= pkg.version %>/'
+            dest:'<%= pkg.name %>-<%= pkg.version %>-<%= pkg.revision %>/'
         }]
       }
+    },
+
+    // -----------------------------------------
+
+    'git-describe': {
+      options: {
+        template: '{%=object%}{%=dirty%}'
+      },
+      commit: { }
     }
   });
 
@@ -119,7 +126,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-handlebars');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-git-describe');
 
-  // Default task(s).
-  grunt.registerTask('default', ['handlebars', 'uglify', 'compress']);
+  grunt.event.once('git-describe', function (rev) {
+    grunt.config.set('pkg.revision', rev);
+  });
+
+  grunt.registerTask('archive', ['git-describe', 'compress']);
+  grunt.registerTask('default', ['handlebars', 'uglify', 'less', 'archive']);
 };
