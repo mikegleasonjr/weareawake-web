@@ -26,7 +26,7 @@ task('web', 'Deploys website', function (controller, archivePath) {
     controller.ssh('tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir, function () {
       controller.ssh('cd ' + remoteAppDir + ' && npm install --production', function() {
         controller.ssh('killall node || true', function() {
-          controller.ssh('ln -s ' + remoteAppDir + ' /root/weareawake-current', function() {
+          controller.ssh('rm /root/weareawake-current || true && ln -s ' + remoteAppDir + ' /root/weareawake-current', function() {
             controller.ssh('node /root/weareawake-current/app.js');
           });
         });
