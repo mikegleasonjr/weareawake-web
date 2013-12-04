@@ -1,3 +1,5 @@
+#!/usr/local/bin/node
+
 var control = require('control'),
   task = control.task,
   path = require('path');
@@ -22,16 +24,21 @@ task('web', 'Deploys website', function (controller, archivePath) {
     unpackedAppDirectoryName = path.basename(remoteArchivePath, '.tar.gz')
     remoteAppDir = path.join(remoteDeployDir, unpackedAppDirectoryName);
 
+  var sshTasks = [
+    'tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir,
+    'rm ' + remoteArchivePath,
+    'cd ' + remoteAppDir + ' && npm install --production',
+    'cd ' + remoteAppDir + ' && ./node_modules/forever/bin/forever stopall || true',
+    'rm /root/weareawake-current || true && ln -s ' + remoteAppDir + ' /root/weareawake-current',
+    "sh -c 'nohup /root/weareawake-current/node_modules/forever/bin/forever /root/weareawake-current/app.js > /dev/null 2>&1 &'"
+  ];
+
   controller.scp(archivePath, remoteDeployDir, function() {
-    controller.ssh('tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir, function () {
-      controller.ssh('cd ' + remoteAppDir + ' && npm install --production', function() {
-        controller.ssh('killall node || true', function() {
-          controller.ssh('rm /root/weareawake-current || true && ln -s ' + remoteAppDir + ' /root/weareawake-current', function() {
-            controller.ssh('node /root/weareawake-current/app.js');
-          });
-        });
-      });
-    });
+    (function doNextSshTask() {
+      if (sshTasks.length) {
+        controller.ssh(sshTasks.shift(), doNextSshTask)
+      }
+    })();
   });
 });
 
