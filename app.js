@@ -7,8 +7,8 @@ var app = express();
 
 app.engine('handlebars', exphbs({
   defaultLayout: 'main',
-  partialsDir: 'views/partials/',
-  layoutsDir: 'views/layouts',
+  partialsDir: './views/partials/',
+  layoutsDir: './views/layouts/',
   helpers: {
     yell: function(msg) { return msg.toUpperCase(); },
     block: function (name) {

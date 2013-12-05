@@ -30,7 +30,7 @@ task('web', 'Deploys website', function (controller, archivePath) {
     'cd ' + remoteAppDir + ' && npm install --production',
     'cd ' + remoteAppDir + ' && ./node_modules/forever/bin/forever stopall || true',
     'rm /root/weareawake-current || true && ln -s ' + remoteAppDir + ' /root/weareawake-current',
-    '/root/weareawake-current/node_modules/forever/bin/forever start /root/weareawake-current/app.js'
+    '/root/weareawake-current/node_modules/forever/bin/forever start /root/weareawake-current/app.js --sourceDir /root/weareawake-current'
   ];
 
   controller.scp(archivePath, remoteDeployDir, function next() {
