@@ -30,7 +30,7 @@ app.enable('trust proxy');
 
 if ('development' == app.get('env')) {
 //  app.use(express.compress());
-  app.use('/static', express.static('static'));
+//  app.use('/static', express.static('static'));
 //  app.use(express.logger('dev'));
 //  app.use(express.favicon());
 //  app.use(express.errorHandler());
