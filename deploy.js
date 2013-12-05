@@ -19,7 +19,7 @@ task('web', 'Deploys website', function (controller, archivePath) {
   }
 
   var archiveFilename = path.basename(archivePath),
-    remoteDeployDir = '/root',
+    remoteDeployDir = '/srv/weareawake-web',
     remoteArchivePath = path.join(remoteDeployDir, archiveFilename),
     unpackedAppDirectoryName = path.basename(remoteArchivePath, '.tar.gz')
     remoteAppDir = path.join(remoteDeployDir, unpackedAppDirectoryName);
@@ -28,9 +28,10 @@ task('web', 'Deploys website', function (controller, archivePath) {
     'tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir,
     'rm ' + remoteArchivePath,
     'cd ' + remoteAppDir + ' && npm install --production',
-    'cd ' + remoteAppDir + ' && ./node_modules/forever/bin/forever stopall || true',
-    'rm /root/weareawake-current || true && ln -s ' + remoteAppDir + ' /root/weareawake-current',
-    'cd /root/weareawake-current && ./node_modules/forever/bin/forever start /root/weareawake-current/app.js --sourceDir /root/weareawake-current'
+    '/sbin/stop weareawake-web || true',
+    'rm /srv/weareawake-web/current || true',
+    'ln -s ' + remoteAppDir + ' /srv/weareawake-web/current',
+    '/sbin/start weareawake-web'
   ];
 
   controller.scp(archivePath, remoteDeployDir, function next() {
