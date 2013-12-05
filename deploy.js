@@ -14,7 +14,7 @@ task('prod', 'Defines production environment', function () {
 
 task('web', 'Deploys website', function (controller, archivePath) {
   if (!archivePath) {
-    console.error('please specify the archive to deploy from archives/');
+    console.error('please specify the archive to deploy from archives/*');
     return;
   }
 
@@ -27,13 +27,26 @@ task('web', 'Deploys website', function (controller, archivePath) {
       'tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir,
       'rm ' + remoteArchivePath,
       'cd ' + remoteAppDir + ' && npm install --production',
-      '/sbin/stop weareawake-web || true',
+      'initctl stop weareawake-web || true',
       'rm /srv/weareawake-web/current || true',
       'ln -s ' + remoteAppDir + ' /srv/weareawake-web/current',
-      '/sbin/start weareawake-web'
+      'initctl start weareawake-web'
     ];
 
   controller.scp(archivePath, remoteDeployDir, function next() {
+    if (sshTasks.length) {
+      controller.ssh(sshTasks.shift(), next);
+    }
+  });
+});
+
+task('status', 'Reports web status', function (controller) {
+  var sshTasks = [
+    'initctl status weareawake-web',
+    'service nginx status'
+  ];
+
+  controller.ssh(sshTasks.shift(), function next() {
     if (sshTasks.length) {
       controller.ssh(sshTasks.shift(), next);
     }
