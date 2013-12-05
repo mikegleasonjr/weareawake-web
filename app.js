@@ -30,7 +30,7 @@ app.enable('trust proxy');
 
 if ('development' == app.get('env')) {
 //  app.use(express.compress());
-//  app.use('/static', express.static('static'));
+  app.use('/static', express.static('static'));
 //  app.use(express.logger('dev'));
 //  app.use(express.favicon());
 //  app.use(express.errorHandler());
@@ -50,8 +50,8 @@ app.use(express.urlencoded());
 //app.use(express.cookieParser('STAGING-fk9vhy)dyi328twiq@sej0cn9isj_eg2d96(pwh9mosu&^6&+v'));
 //app.use(express.cookieParser('PROD-yqd5p35t2oxibif6s*sjkfc93-ahcia22zo8f=vi@(+*)+=+m='));
 
-app.use(express.cookieParser());
-app.use(express.cookieSession({ 'secret': 'hello' }));
+//app.use(express.cookieParser());
+//app.use(express.cookieSession({ 'secret': 'hello' }));
 
 //app.use(express.session({
 //  secret: 'DEV-%nu^$%_-wjuxg%5xtkt5u_q=#)(q)cq9c7u_6*bz%)ld2nbu_l',
@@ -77,7 +77,6 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-/*
 app.get('/', routes.index);
 app.get('/users', user.list);
 
@@ -107,6 +106,5 @@ app.get('/echo/:message?', function (req, res) {
     message: req.params.message
   });
 });
-*/
 
 app.listen(app.get('port'));
