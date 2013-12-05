@@ -14,7 +14,7 @@ task('prod', 'Defines production environment', function () {
 
 task('web', 'Deploys website', function (controller, archivePath) {
   if (!archivePath) {
-    console.log(' please specify the archive to deploy...');
+    console.error('please specify the archive to deploy from archives/');
     return;
   }
 
@@ -30,15 +30,13 @@ task('web', 'Deploys website', function (controller, archivePath) {
     'cd ' + remoteAppDir + ' && npm install --production',
     'cd ' + remoteAppDir + ' && ./node_modules/forever/bin/forever stopall || true',
     'rm /root/weareawake-current || true && ln -s ' + remoteAppDir + ' /root/weareawake-current',
-    "sh -c 'nohup /root/weareawake-current/node_modules/forever/bin/forever /root/weareawake-current/app.js > /dev/null 2>&1 &'"
+    '/root/weareawake-current/node_modules/forever/bin/forever start /root/weareawake-current/app.js'
   ];
 
-  controller.scp(archivePath, remoteDeployDir, function() {
-    (function doNextSshTask() {
-      if (sshTasks.length) {
-        controller.ssh(sshTasks.shift(), doNextSshTask)
-      }
-    })();
+  controller.scp(archivePath, remoteDeployDir, function next() {
+    if (sshTasks.length) {
+      controller.ssh(sshTasks.shift(), next);
+    }
   });
 });
 
