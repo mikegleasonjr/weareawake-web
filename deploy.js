@@ -6,7 +6,8 @@ var control = require('control'),
 
 task('prod', 'Defines production environment', function () {
   var config = {
-    'webserver01': { user: 'root' }
+    'web01': { user: 'root' },
+    'web02': { user: 'root' }
   };
 
   return control.controllers(config);
