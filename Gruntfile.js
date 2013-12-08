@@ -1,9 +1,6 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-
-    // -----------------------------------------
-
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd h:MM:ss TT Z") %> */',
@@ -34,9 +31,6 @@ module.exports = function(grunt) {
         }]
       }
     },
-
-    // -----------------------------------------
-
     less: {
       options: {
         compress: true,
@@ -61,9 +55,6 @@ module.exports = function(grunt) {
         }]
       }
     },
-
-    // -----------------------------------------
-
     handlebars: {
       partials: {
         options: {
@@ -80,9 +71,6 @@ module.exports = function(grunt) {
         }]
       }
     },
-
-    // -----------------------------------------
-
     watch: {
       'uglify:lib': {
         files: ['static/js/lib/**/*.js'],
@@ -101,9 +89,6 @@ module.exports = function(grunt) {
         tasks: ['handlebars']
       }
     },
-
-    // -----------------------------------------
-
     compress: {
       main: {
         options: {
@@ -116,18 +101,12 @@ module.exports = function(grunt) {
         }]
       }
     },
-
-    // -----------------------------------------
-
     'git-describe': {
       options: {
         template: '{%=object%}{%=dirty%}'
       },
       commit: { }
     },
-
-    // -----------------------------------------
-
     clean: [
       'static/js/app/handlebars-partials.js',
       'static/js/*.min.js',
@@ -146,12 +125,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-git-describe');
 
   grunt.event.once('git-describe', function (rev) {
-    console.log('---------------');
     grunt.config.set('pkg.revision', rev);
-  });
-
-  grunt.event.on('default', function () {
-    console.log('---------------');
   });
 
   grunt.registerTask('archive', ['git-describe', 'compress']);
