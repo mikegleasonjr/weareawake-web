@@ -2,12 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="/static/css/app.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/app-{{ pkg.version }}.min.css">
     {{{block "head"}}}
 </head>
 <body>
     {{{body}}}
-    <script src="/static/js/lib.min.js"></script>
-    <script src="/static/js/app.min.js"></script>
+
+    <script src="/static/js/lib-{{ pkg.version }}.min.js"></script>
+    <script src="/static/js/app-{{ pkg.version }}.min.js"></script>
 </body>
 </html>

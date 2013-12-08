@@ -7,24 +7,30 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd h:MM:ss TT Z") %> */',
-        sourceMap: function (path) { return path.replace(/(.*).min.js/, "$1.map.js"); },
-        sourceMappingURL: function (path) { return path.replace(/(.*).min.js/, "/$1.map.js"); },
         sourceMapRoot: '/'
       },
       lib: {
+        options: {
+          sourceMap: 'static/js/lib-<%= pkg.version %>.map.js',
+          sourceMappingURL: '/static/js/lib-<%= pkg.version %>.map.js'
+        },
         files: [{
           src: [
             'static/js/lib/jquery-2.0.3.js',
             'static/js/lib/handlebars.runtime-1.1.2.js',
             'static/js/lib/ember-1.2.0.js'
           ],
-          dest: 'static/js/lib.min.js'
+          dest: 'static/js/lib-<%= pkg.version %>.min.js'
         }]
       },
       app: {
+        options: {
+          sourceMap: 'static/js/app-<%= pkg.version %>.map.js',
+          sourceMappingURL: '/static/js/app-<%= pkg.version %>.map.js'
+        },
         files: [{
           src: 'static/js/app/**/*.js',
-          dest: 'static/js/app.min.js'
+          dest: 'static/js/app-<%= pkg.version %>.min.js'
         }]
       }
     },
@@ -35,7 +41,7 @@ module.exports = function(grunt) {
       options: {
         compress: true,
         sourceMap: true,
-        sourceMapFilename: 'static/css/app.map.css',
+        sourceMapFilename: 'static/css/app-<%= pkg.version %>.map.css',
         sourceMapRootpath: '/'
       },
 //      lib: {
@@ -51,7 +57,7 @@ module.exports = function(grunt) {
       app: {
         files: [{
           src: 'static/css/app/**/*.less',
-          dest: 'static/css/app.min.css'
+          dest: 'static/css/app-<%= pkg.version %>.min.css'
         }]
       }
     },
@@ -118,7 +124,17 @@ module.exports = function(grunt) {
         template: '{%=object%}{%=dirty%}'
       },
       commit: { }
-    }
+    },
+
+    // -----------------------------------------
+
+    clean: [
+      'static/js/app/handlebars-partials.js',
+      'static/js/*.min.js',
+      'static/js/*.map.js',
+      'static/css/*.min.css',
+      'static/css/*.map.css'
+    ]
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -126,12 +142,18 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-handlebars');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-git-describe');
 
   grunt.event.once('git-describe', function (rev) {
+    console.log('---------------');
     grunt.config.set('pkg.revision', rev);
   });
 
+  grunt.event.on('default', function () {
+    console.log('---------------');
+  });
+
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['handlebars', 'uglify', 'less', 'archive']);
+  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'archive']);
 };

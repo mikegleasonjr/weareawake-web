@@ -24,17 +24,15 @@ app.engine('handlebars', exphbs({
   }
 }));
 
-app.set('port', process.env.PORT || 8000);
+app.set('port', 8000);
 app.set('view engine', 'handlebars');
 app.enable('trust proxy');
 
-if ('development' == app.get('env')) {
-//  app.use(express.compress());
-//  app.use('/static', express.static('static'));
-//  app.use(express.logger('dev'));
-//  app.use(express.favicon());
-//  app.use(express.errorHandler());
-}
+app.use(express.responseTime());
+
+app.locals({
+  pkg: require('./package.json')
+});
 
 // Parse application/json request bodies,
 // providing the parsed object as req.body.
@@ -106,5 +104,11 @@ app.get('/echo/:message?', function (req, res) {
     message: req.params.message
   });
 });
+
+if ('development' == app.get('env')) {
+  app.use('/static', express.static('static'));
+  app.use(express.logger('dev'));
+  app.use(express.errorHandler());
+}
 
 app.listen(app.get('port'));
