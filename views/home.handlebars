@@ -1,7 +1,7 @@
-{{#contentFor "head"}}
+{{#content "head"}}
     <title>home</title>
-{{/contentFor}}
+{{/content}}
 
-<h1>{{> title}}</h1>
-
-{{> nav}}
+{{#content "body"}}
+    <h1>{{> title}}</h1>
+{{/content}}
