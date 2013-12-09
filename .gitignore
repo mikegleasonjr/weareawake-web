@@ -5,6 +5,6 @@ control.log
 archives/
 node_modules/
 static/js/app/handlebars-partials.js
-static/js/app-*.js
-static/js/lib-*.js
-static/css/app-*.css
+static/js/app.*.js
+static/js/lib.*.js
+static/css/app.*.css

@@ -8,8 +8,8 @@ module.exports = function(grunt) {
       },
       lib: {
         options: {
-          sourceMap: 'static/js/lib-<%= pkg.version %>.map.js',
-          sourceMappingURL: '/static/js/lib-<%= pkg.version %>.map.js'
+          sourceMap: 'static/js/lib.map.js',
+          sourceMappingURL: '/static/js/lib.map.js'
         },
         files: [{
           src: [
@@ -17,17 +17,17 @@ module.exports = function(grunt) {
             'static/js/lib/handlebars.runtime-1.1.2.js',
             'static/js/lib/ember-1.2.0.js'
           ],
-          dest: 'static/js/lib-<%= pkg.version %>.min.js'
+          dest: 'static/js/lib.min.js'
         }]
       },
       app: {
         options: {
-          sourceMap: 'static/js/app-<%= pkg.version %>.map.js',
-          sourceMappingURL: '/static/js/app-<%= pkg.version %>.map.js'
+          sourceMap: 'static/js/app.map.js',
+          sourceMappingURL: '/static/js/app.map.js'
         },
         files: [{
           src: 'static/js/app/**/*.js',
-          dest: 'static/js/app-<%= pkg.version %>.min.js'
+          dest: 'static/js/app.min.js'
         }]
       }
     },
@@ -35,7 +35,7 @@ module.exports = function(grunt) {
       options: {
         compress: true,
         sourceMap: true,
-        sourceMapFilename: 'static/css/app-<%= pkg.version %>.map.css',
+        sourceMapFilename: 'static/css/app.map.css',
         sourceMapRootpath: '/'
       },
 //      lib: {
@@ -51,7 +51,7 @@ module.exports = function(grunt) {
       app: {
         files: [{
           src: 'static/css/app/**/*.less',
-          dest: 'static/css/app-<%= pkg.version %>.min.css'
+          dest: 'static/css/app.min.css'
         }]
       }
     },
@@ -74,15 +74,15 @@ module.exports = function(grunt) {
     watch: {
       'uglify:lib': {
         files: ['static/js/lib/**/*.js'],
-        tasks: ['uglify:lib']
+        tasks: ['clean:libjs', 'uglify:lib', 'md5:libjs', 'replace:handlebars']
       },
       'uglify:app': {
         files: ['static/js/app/**/*.js'],
-        tasks: ['uglify:app']
+        tasks: ['clean:appjs', 'uglify:app', 'md5:appjs', 'replace:handlebars']
       },
       'less:app': {
         files: ['static/css/app/**/*.less'],
-        tasks: ['less:app']
+        tasks: ['clean:appcss', 'less:app', 'md5:appcss', 'replace:handlebars']
       },
       handlebars: {
         files: 'views/partials/**/*.handlebars',
@@ -107,13 +107,67 @@ module.exports = function(grunt) {
       },
       commit: { }
     },
-    clean: [
-      'static/js/app/handlebars-partials.js',
-      'static/js/*.min.js',
-      'static/js/*.map.js',
-      'static/css/*.min.css',
-      'static/css/*.map.css'
-    ]
+    clean: {
+      appjs: [
+        'static/js/app.*.js'
+      ],
+      libjs: [
+        'static/js/lib.*.js'
+      ],
+      appcss: [
+        'static/css/app.*.css'
+      ],
+      handlebars: [
+        'static/js/app/handlebars-partials.js'
+      ]
+    },
+    md5: {
+      options: {
+        encoding: null,
+        keepBasename: true,
+        keepExtension: true,
+        afterEach: function (fileChange) {
+          grunt.file.delete(fileChange.oldPath);
+          grunt.config.set('md5:' + fileChange.oldPath.replace(/\./g, '/'), fileChange.newPath);
+          console.log('--- setting', 'md5:' + fileChange.oldPath.replace(/\./g, '/'))
+        }
+      },
+      'libjs': {
+        files: [
+          { 'static/js/': 'static/js/lib.map.js' },
+          { 'static/js/': 'static/js/lib.min.js' }
+        ]
+      },
+      'appjs': {
+        files: [
+          { 'static/js/': 'static/js/app.map.js' },
+          { 'static/js/': 'static/js/app.min.js' }
+        ]
+      },
+      'appcss': {
+        files: [
+          { 'static/css/': 'static/css/app.map.css' },
+          { 'static/css/': 'static/css/app.min.css' }
+        ]
+      }
+    },
+    replace: {
+      handlebars: {
+        src: [
+          'views/layouts/main.handlebars',
+          'static/js/*.js',
+          'static/css/*.css'
+        ],
+        overwrite: true,
+        replacements: [{
+          from: /static\/(js|css)\/(app|lib)\.(min|map)(-[a-fA-F0-9]{32})?\.(js|css)/g,
+          to: function(matchedWord) {
+            var m = /static\/(js|css)\/(app|lib)\.(min|map)(-[a-fA-F0-9]{32})?\.(js|css)/g.exec(matchedWord);
+            return grunt.config.get('md5:static/' + m[1] + '/' + m[2] + '/' + m[3] + '/' + m[1]) || matchedWord;
+          }
+        }]
+      }
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -123,11 +177,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-git-describe');
+  grunt.loadNpmTasks('grunt-md5');
+  grunt.loadNpmTasks('grunt-text-replace');
 
   grunt.event.once('git-describe', function (rev) {
     grunt.config.set('pkg.revision', rev);
   });
 
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'archive']);
+  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'clean:handlebars', 'archive']);
+  grunt.registerTask('test', function() { console.log(grunt.config.get()); });
 };
