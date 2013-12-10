@@ -17,6 +17,9 @@
     "grunt-git-describe": "~2.3.2",
     "grunt-md5": "~0.1.11",
     "grunt-text-replace": "~0.3.10",
-    "control": "~0.2.3"
+    "grunt-mocha-test": "~0.8.1",
+    "control": "~0.2.3",
+    "grunt-mocha": "~0.4.7",
+    "grunt-contrib-connect": "~0.5.0"
   }
 }

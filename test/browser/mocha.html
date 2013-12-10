@@ -1,0 +1,27 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/app.min-cb8e6db45248d60ba8dc97dcad397133.css">
+  <link rel="stylesheet" href="mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <script src="/static/js/lib.min-21955bcf2da99c67da980850017f20b7.js"></script>
+  <script src="/static/js/app.min-a9329cd1ea94c71ae05eef83ff7466e4.js"></script>
+
+  <script src="mocha/mocha.js"></script>
+  <script>
+    mocha.setup('bdd');
+    mocha.checkLeaks();
+    mocha.globals(['jQuery']);
+    onload = mocha.run;
+    function assert(cond) { if (!cond) { throw 'assertion failed'; } }
+  </script>
+
+  <script src="test/duration.js"></script>
+  <script src="test/array.js"></script>
+  <script src="test/timeout.js"></script>
+</body>
+</html>

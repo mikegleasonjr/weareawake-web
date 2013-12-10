@@ -156,7 +156,8 @@ module.exports = function(grunt) {
         src: [
           'views/layouts/main.handlebars',
           'static/js/*.js',
-          'static/css/*.css'
+          'static/css/*.css',
+          'test/browser/mocha.html'
         ],
         overwrite: true,
         replacements: [{
@@ -166,6 +167,23 @@ module.exports = function(grunt) {
             return grunt.config.get('md5:static/' + m[1] + '/' + m[2] + '/' + m[3] + '/' + m[1]) || matchedWord;
           }
         }]
+      }
+    },
+    mochaTest: {
+      test: {
+        src: ['test/server/**/*.js']
+      }
+    },
+    mocha: {
+      test: {
+        src: ['test/browser/mocha.html']
+      }
+    },
+    connect: {
+      server: {
+        options: {
+          port: 8001
+        }
       }
     }
   });
@@ -179,12 +197,17 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-git-describe');
   grunt.loadNpmTasks('grunt-md5');
   grunt.loadNpmTasks('grunt-text-replace');
+  grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-mocha');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.event.once('git-describe', function (rev) {
     grunt.config.set('pkg.revision', rev);
   });
 
+  grunt.registerTask('test-browser', ['mocha']);
+  grunt.registerTask('test-server', ['mochaTest']);
+  grunt.registerTask('test', ['test-browser', 'test-server']);
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'clean:handlebars', 'archive']);
-  grunt.registerTask('test', function() { console.log(grunt.config.get()); });
+  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'clean:handlebars', 'less', 'md5', 'replace', 'test-browser', 'test-server', 'archive']);
 };
