@@ -2,21 +2,21 @@
 <head>
   <meta charset="utf-8">
   <title>Mocha Tests</title>
-  <link rel="stylesheet" type="text/css" href="/static/css/app.min-cb8e6db45248d60ba8dc97dcad397133.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/app.min-55b262557c6aaf877212d21c3ea6bf82.css">
   <link rel="stylesheet" href="mocha/mocha.css" />
 </head>
 <body>
   <div id="mocha"></div>
 
   <script src="/static/js/lib.min-7a9611ed9ded01ad76a13b24503c608d.js"></script>
-  <script src="/static/js/app.min-4f9b34ea4976ae67439fb028d09e1f3b.js"></script>
+  <script src="/static/js/app.min-fbcfe802be0a82390d1320d37e396ba2.js"></script>
 
   <script src="mocha/mocha.js"></script>
   <script>
     mocha.setup('bdd');
     mocha.checkLeaks();
     mocha.globals(['jQuery']);
-    onload = mocha.run;
+    onload = function() { mocha.run(); };
     function assert(cond) { if (!cond) { throw 'assertion failed'; } }
   </script>
 
