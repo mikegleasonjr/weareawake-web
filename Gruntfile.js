@@ -115,9 +115,6 @@ module.exports = function(grunt) {
       ],
       appcss: [
         'static/css/app.*.css'
-      ],
-      handlebars: [
-        'static/js/app/handlebars-partials.js'
       ]
     },
     md5: {
@@ -208,5 +205,5 @@ module.exports = function(grunt) {
   grunt.registerTask('test-server', ['mochaTest']);
   grunt.registerTask('test', ['test-browser', 'test-server']);
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'clean:handlebars', 'less', 'md5', 'replace', 'test-browser', 'test-server', 'archive']);
+  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'test-browser', 'test-server', 'archive']);
 };

@@ -3,15 +3,13 @@
 {{/content}}
 
 {{#content 'body'}}
-    <h1>{{> title}}</h1>
+    <h1>{{ __ 'domain' }}</h1>
 
     {{#widget js='app.widgets.map' cssclass='map'}}
         {{> widgets/map }}
     {{/widget}}
+{{/content}}
 
-    {{#each [1, 2, 3]}}
-      <div class="comment">
-        <h2>das{{ this }}</h2>
-      </div>
-    {{/each}}
+{{#content 'scripts'}}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvEyN2z62-Yz62XqI4K9GJnuZxDRQ3e3Q&sensor=false"></script>
 {{/content}}

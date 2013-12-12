@@ -1,8 +1,11 @@
-var express = require('express');
-var exphbs = require('express3-handlebars');
-var routes = require('./routes');
-var http = require('http');
-var app = express();
+var express = require('express'),
+  exphbs = require('express3-handlebars'),
+  routes = require('./routes'),
+  http = require('http'),
+  app = express(),
+  i18n = require('i18n-2'),
+  url = require('url');
+
 var hbs = exphbs.create({
   defaultLayout: 'main',
   partialsDir: './views/partials/',
@@ -23,7 +26,6 @@ var hbs = exphbs.create({
         options = context;
         context = {};
       }
-      console.log(context);
       var widgets = this._widgets || (this._widgets = []);
       var id = widgets.length + 1;
       widgets.push({ id: 'widget-' + id, js: options.hash.js, context: context });
@@ -40,23 +42,24 @@ var hbs = exphbs.create({
     }
   }
 });
-hbs.handlebars.registerPartial('template', function(name, y, z) {
-  console.log(name, y.partials);
-  return '<div>template!</div>';
-});
-
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 app.enable('trust proxy');
-
-app.locals({
-  pkg: require('./package.json')
+app.use(function(req, res, next){
+  if (/^([^.]+)/.test(req.headers.host) && RegExp.$1 === 'en') {
+    return res.redirect(301, url.resolve('http://' + req.headers.host.substring(3), req.url));
+  }
+  next();
 });
-
+i18n.expressBind(app, {
+  locales: ['en', 'fr'],
+  defaultLocale: 'en',
+  subdomain: true,
+  query: false
+});
 app.use(express.responseTime());
-
-if ('development' == app.get('env')) {
+if (app.get('env') == 'development') {
   app.use('/static', express.static('static'));
   app.use(express.logger('dev'));
   app.use(express.errorHandler());

@@ -1,0 +1,3 @@
+{
+	"domain": "fr.weareawake.net"
+}
