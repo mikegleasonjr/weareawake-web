@@ -13,8 +13,7 @@ module.exports = function(grunt) {
         files: [{
           src: [
             'static/js/lib/jquery-2.0.3.js',
-            'static/js/lib/handlebars.runtime-1.1.2.js',
-            'static/js/lib/ember-1.2.0.js'
+            'static/js/lib/handlebars.runtime-1.1.2.js'
           ],
           dest: 'static/js/lib.min.js'
         }]
@@ -25,7 +24,13 @@ module.exports = function(grunt) {
           sourceMappingURL: '/static/js/app.map.js'
         },
         files: [{
-          src: 'static/js/app/**/*.js',
+          src: [
+            'static/js/app/app.js',
+            'static/js/app/handlebars-partials.js',
+            'static/js/app/googlemaps/loader.js',
+            'static/js/app/widgets/widget.js',
+            'static/js/app/widgets/map.js'
+          ],
           dest: 'static/js/app.min.js'
         }]
       }

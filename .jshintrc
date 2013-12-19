@@ -1,0 +1,9 @@
+{
+  "browser"       : true,
+  "node"          : true,
+  "jquery"        : true,
+  "devel"         : false,
+  "globals": {
+    "app": true
+  }
+}

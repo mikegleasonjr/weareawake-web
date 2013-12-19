@@ -5,11 +5,7 @@
 {{#content 'body'}}
     <h1>{{ __ 'domain' }}</h1>
 
-    {{#widget js='app.widgets.map' cssclass='map'}}
+    {{#widget js='app.widgets.Map' cssclass='map'}}
         {{> widgets/map }}
     {{/widget}}
-{{/content}}
-
-{{#content 'scripts'}}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvEyN2z62-Yz62XqI4K9GJnuZxDRQ3e3Q&sensor=false"></script>
 {{/content}}
