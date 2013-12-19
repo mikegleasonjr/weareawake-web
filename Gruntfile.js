@@ -29,6 +29,7 @@ module.exports = function(grunt) {
             'static/js/app/handlebars-partials.js',
             'static/js/app/googlemaps/loader.js',
             'static/js/app/widgets/widget.js',
+            'static/js/app/widgets/handlebars.js',
             'static/js/app/widgets/map.js'
           ],
           dest: 'static/js/app.min.js'
@@ -206,9 +207,8 @@ module.exports = function(grunt) {
     grunt.config.set('pkg.revision', rev);
   });
 
-  grunt.registerTask('test-browser', ['mocha']);
-  grunt.registerTask('test-server', ['mochaTest']);
-  grunt.registerTask('test', ['test-browser', 'test-server']);
+  grunt.registerTask('dev', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'connect', 'watch']);
+  grunt.registerTask('test', ['mocha', 'mochaTest']);
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'test-browser', 'test-server', 'archive']);
+  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'test', 'archive']);
 };

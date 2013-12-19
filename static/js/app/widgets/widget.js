@@ -1,37 +1,32 @@
 var app = app || {};
 app.widgets = app.widgets || {};
 
-(function(){
+(function() {
   "use strict";
 
-  app.widgets.Widget = function(partialName) {
-    this.partialName = partialName;
+  app.widgets.Widget = function() {
+    this._container = undefined;
   };
 
-  app.widgets.Widget.prototype.create = function(container, context){
-    if (!Handlebars.partials.hasOwnProperty(this.partialName)) {
-      throw 'partial "' + this.partialName + '" not found';
-    }
-
-    var partial = Handlebars.partials[this.partialName];
-    var $container = $(container);
-
-    if ($container.length !== 1) {
-      throw 'none or multiple container found';
-    }
-
-    this.context = context || {};
-    this.container = $container.append(partial(context));
+  app.widgets.Widget.prototype.create = function(container) {
+    this._setContainer(container);
   };
 
-  app.widgets.Widget.prototype.attach = function(container, context) {
-    var $container = $(container);
+  app.widgets.Widget.prototype.getContainer = function() {
+    return this._container;
+  };
 
-    if ($container.length !== 1) {
-      throw 'multiple container found';
+  app.widgets.Widget.prototype.show = function() {
+    throw new Error('widgets must override the show method');
+  };
+
+  // private
+
+  app.widgets.Widget.prototype._setContainer = function(container) {
+    if (!(container instanceof HTMLElement)) {
+      throw new Error('container should be a DOM node');
     }
 
-    this.context = context || {};
-    this.container = $container;
+    this._container = container;
   };
 })();

@@ -13,8 +13,8 @@ describe('app.googlemaps.Loader', function() {
     });
   });
 
-  describe('#callback', function() {
-    it('should be a function available for Google Maps API to be executed upon completing loading the API', function() {
+  describe('#callback()', function() {
+    it('should be a global function available for the Google Maps API to call upon load completion', function() {
       app.googlemaps.Loader.callback.should.be.type('function');
     });
   });
@@ -22,9 +22,9 @@ describe('app.googlemaps.Loader', function() {
   describe('#new', function() {
     it('should throw when the script container is not a DOM node', function() {
       var shouldBeDOMNode = /scriptContainer should be a DOM node/;
-      var creatingWith = function(parameter) {
+      var creatingWith = function(scriptContainer) {
         return function() {
-          new app.googlemaps.Loader(parameter);
+          new app.googlemaps.Loader(scriptContainer);
         };
       };
 
@@ -32,6 +32,7 @@ describe('app.googlemaps.Loader', function() {
       creatingWith({}).should.throw(shouldBeDOMNode);
       creatingWith([]).should.throw(shouldBeDOMNode);
       creatingWith($('<div></div>')).should.throw(shouldBeDOMNode);
+      creatingWith($('<div></div>')[0]).should.not.throw();
     });
   });
 
@@ -69,7 +70,7 @@ describe('app.googlemaps.Loader', function() {
     });
   });
 
-  describe('#loaded', function() {
+  describe('#loaded()', function() {
     it('should be triggered on the singleton when the Google Maps API is loaded', function() {
       var mock = sinon.mock(app.googlemaps.Loader.instance);
       mock.expects('onLoaded').once();

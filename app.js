@@ -36,7 +36,7 @@ var hbs = exphbs.create({
       var widgets = this._widgets || [];
       for(var i = 0; i < widgets.length; i++) {
         var w = widgets[i];
-        init += 'new ' + w.js + '().attach("#' + w.id + '", ' + JSON.stringify(w.context) +');';
+        init += 'new ' + w.js + '().attach(document.getElementById("' + w.id + '"), ' + JSON.stringify(w.context) +');';
       }
       return '<script>$(document).ready(function(){'+ init +'});</script>';
     }
