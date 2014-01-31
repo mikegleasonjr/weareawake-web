@@ -101,7 +101,7 @@ module.exports = function(grunt) {
           archive: 'archives/<%= pkg.name %>-<%= pkg.version %>-<%= pkg.revision %>.tar.gz'
         },
         files: [{
-            src: ['app.js', 'package.json', 'locales/*.js', 'routes/**/*.*', 'static/**/*.*', 'views/**/*.*'],
+            src: ['app.js', 'package.json', 'lib/**/*.js', 'locales/*.js', 'static/**/*.*', 'views/**/*.*'],
             dest:'<%= pkg.name %>-<%= pkg.version %>-<%= pkg.revision %>/'
         }]
       }
