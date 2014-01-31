@@ -24,6 +24,7 @@
     "grunt-mocha": "~0.4.7",
     "supertest": "~0.8.2",
     "should": "~2.1.1",
-    "sinon": "~1.7.3"
+    "sinon": "~1.7.3",
+    "async": "~0.2.10"
   }
 }
