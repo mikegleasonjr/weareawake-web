@@ -30,8 +30,8 @@ function deploy(lb, webpool1, webpool2, archive) {
 }
 
 function changeLBServerState(action, lb, webpool, next) {
-  async.eachSeries(webpool, function(server, next) {
-    lb.ssh('echo "' + action + ' server http00/' + server.address +'.weareawake.net" | socat stdio /var/lib/haproxy/stats');
+  async.eachSeries(webpool, function(server, nextServer) {
+    lb.ssh('echo "' + action + ' server http00/' + server.address +'.weareawake.net" | socat stdio /var/lib/haproxy/stats', nextServer);
   }, next);
 }
 
@@ -66,7 +66,7 @@ function deployPool(webpool, archive, next) {
 
 (function(env, archive) {
   if (env !== 'prod') {
-    console.error('please specify a valid environment. Choices are: [prod]');
+    console.error('please specify a valid environment [prod]');
     return;
   }
 
@@ -81,48 +81,3 @@ function deployPool(webpool, archive, next) {
 
   deploy(lb, webpool1, webpool2, archive);
 }).apply(this, process.argv.splice(2));
-
-/*
- task('web', 'Deploys website', function (controller, archivePath) {
- if (!archivePath) {
- console.error('please specify the archive to deploy from archives*/
-/*');
- return;
- }
-
- var archiveFilename = path.basename(archivePath),
- remoteDeployDir = '/srv/weareawake-web',
- remoteArchivePath = path.join(remoteDeployDir, archiveFilename),
- unpackedAppDirectoryName = path.basename(remoteArchivePath, '.tar.gz'),
- remoteAppDir = path.join(remoteDeployDir, unpackedAppDirectoryName),
- sshTasks = [
- 'tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir,
- 'rm ' + remoteArchivePath,
- 'cd ' + remoteAppDir + ' && npm install --production',
- 'initctl stop weareawake-web || true',
- 'rm /srv/weareawake-web/current || true',
- 'ln -s ' + remoteAppDir + ' /srv/weareawake-web/current',
- 'initctl start weareawake-web'
- ];
-
- controller.scp(archivePath, remoteDeployDir, function next() {
- if (sshTasks.length) {
- controller.ssh(sshTasks.shift(), next);
- }
- });
- });
-
- task('status', 'Reports web status', function (controller) {
- var sshTasks = [
- 'initctl status weareawake-web',
- 'service nginx status'
- ];
-
- controller.ssh(sshTasks.shift(), function next() {
- if (sshTasks.length) {
- controller.ssh(sshTasks.shift(), next);
- }
- });
- });
- */
-
