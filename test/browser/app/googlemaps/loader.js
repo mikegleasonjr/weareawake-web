@@ -1,5 +1,5 @@
 describe('app.googlemaps.Loader', function() {
-  "use strict";
+  'use strict';
 
   describe('#instance', function() {
     it('should be a app.googlemaps.Loader instance (singleton)', function() {

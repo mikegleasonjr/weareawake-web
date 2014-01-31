@@ -1,5 +1,5 @@
 describe('app.widgets.Widget', function() {
-  "use strict";
+  'use strict';
 
   describe('#create()', function() {
     it('should throw when the container is not a DOM node', function() {

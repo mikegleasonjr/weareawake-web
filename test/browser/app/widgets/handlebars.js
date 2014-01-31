@@ -23,7 +23,7 @@ describe('app.widgets.Handlebars', function() {
   });
 
   describe('#getPartialName()', function() {
-    it('should return the widget\'s handlebars partial name', function() {
+    it("should return the widget's handlebars partial name", function() {
       var hbw = new app.widgets.Handlebars('cool/widget');
       hbw.getPartialName().should.equal('cool/widget');
     });
