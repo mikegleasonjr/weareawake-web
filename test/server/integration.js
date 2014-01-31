@@ -1,20 +1,9 @@
 var request = require('supertest'),
   should = require('should'),
-//  app = require('../../lib/express/app');
   app = require('../../app');
 
 
 describe('integration', function() {
-//  var server;
-//
-//  before(function() {
-//    server = app.bootstrap();
-//  });
-//
-//  after(function() {
-//    server.close();
-//  });
-
   describe('when requesting resource /heartbeat', function() {
     it('should respond 200', function(done) {
       request(app)
