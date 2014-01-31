@@ -16,12 +16,10 @@ function deploy(lb, webpool1, webpool2, archive) {
   async.series([
     // deploy pool1
     function(next) { changeLBServerState('disable', lb, webpool1, next); },
-    function(next) { waitSeconds(10, next); },
     function(next) { deployPool(webpool1, archive, next); },
     function(next) { changeLBServerState('enable', lb, webpool1, next); },
     // deploy pool2
     function(next) { changeLBServerState('disable', lb, webpool2, next); },
-    function(next) { waitSeconds(10, next); },
     function(next) { deployPool(webpool2, archive, next); },
     function(next) { changeLBServerState('enable', lb, webpool2, next); },
   ], function(err) {
@@ -33,10 +31,6 @@ function changeLBServerState(action, lb, webpool, next) {
   async.eachSeries(webpool, function(server, nextServer) {
     lb.ssh('echo "' + action + ' server http00/' + server.address +'.weareawake.net" | socat stdio /var/lib/haproxy/stats', nextServer);
   }, next);
-}
-
-function waitSeconds(count, next) {
-  setTimeout(next, count * 1000);
 }
 
 function deployPool(webpool, archive, next) {
