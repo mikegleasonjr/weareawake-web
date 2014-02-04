@@ -13,7 +13,8 @@ module.exports = function(grunt) {
         files: [{
           src: [
             'static/js/lib/jquery-2.0.3.js',
-            'static/js/lib/handlebars.runtime-1.1.2.js'
+            'static/js/lib/handlebars.runtime-1.1.2.js',
+            'static/js/lib/bootstrap.js'
           ],
           dest: 'static/js/lib.min.js'
         }]
@@ -40,20 +41,24 @@ module.exports = function(grunt) {
       options: {
         compress: true,
         sourceMap: true,
-        sourceMapFilename: 'static/css/app.map.css',
         sourceMapRootpath: '/'
       },
-//      lib: {
-//        files: [{
-//          src: [
-//            'static/js/lib/jquery-2.0.3.js',
-//            'static/js/lib/handlebars.runtime-1.1.2.js',
-//            'static/js/lib/ember-1.2.0.js'
-//          ],
-//          dest: 'static/js/lib.min.js'
-//        }]
-//      },
+      lib: {
+        options: {
+          sourceMapFilename: 'static/css/lib.map.css'
+        },
+        files: [{
+          src: [
+            'static/css/lib/bootstrap.css',
+            'static/css/lib/bootstrap-theme.css'
+          ],
+          dest: 'static/css/lib.min.css'
+        }]
+      },
       app: {
+        options: {
+          sourceMapFilename: 'static/css/app.map.css'
+        },
         files: [{
           src: 'static/css/app/**/*.less',
           dest: 'static/css/app.min.css'
@@ -84,6 +89,10 @@ module.exports = function(grunt) {
       'uglify:app': {
         files: ['static/js/app/**/*.js'],
         tasks: ['clean:appjs', 'uglify:app', 'md5:appjs', 'replace:handlebars']
+      },
+      'less:lib': {
+        files: ['static/css/lib/**/*.less', 'static/css/lib/**/*.css'],
+        tasks: ['clean:libcss', 'less:lib', 'md5:libcss', 'replace:handlebars']
       },
       'less:app': {
         files: ['static/css/app/**/*.less'],
@@ -121,6 +130,9 @@ module.exports = function(grunt) {
       ],
       appcss: [
         'static/css/app.*.css'
+      ],
+      libcss: [
+        'static/css/lib.*.css'
       ]
     },
     md5: {
@@ -144,6 +156,12 @@ module.exports = function(grunt) {
         files: [
           { 'static/js/': 'static/js/app.map.js' },
           { 'static/js/': 'static/js/app.min.js' }
+        ]
+      },
+      'libcss': {
+        files: [
+          { 'static/css/': 'static/css/lib.map.css' },
+          { 'static/css/': 'static/css/lib.min.css' }
         ]
       },
       'appcss': {

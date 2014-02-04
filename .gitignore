@@ -7,3 +7,4 @@ node_modules/
 static/js/app.*.js
 static/js/lib.*.js
 static/css/app.*.css
+static/css/lib.*.css
