@@ -219,8 +219,11 @@ module.exports = function(grunt) {
     grunt.config.set('pkg.revision', rev);
   });
 
-  grunt.registerTask('dev', ['clean', 'handlebars', 'uglify', 'sass', 'md5', 'replace', 'connect', 'watch']);
-  grunt.registerTask('test', ['jshint', 'mocha', 'mochaTest']);
+  grunt.registerTask('static', ['handlebars', 'uglify', 'sass', 'md5', 'replace']);
+  grunt.registerTask('test-only', ['jshint', 'mocha', 'mochaTest']);
+  grunt.registerTask('test', ['clean', 'static', 'test-only']);
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'sass', 'md5', 'replace', 'test', 'archive']);
+  grunt.registerTask('dev', ['clean', 'static', 'connect', 'watch']);
+
+  grunt.registerTask('default', ['test', 'archive']);
 };

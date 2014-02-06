@@ -1,3 +1,3 @@
 {
-	"domain": "weareawake.net"
+	"domain": "en.weareawake.net"
 }
