@@ -1,14 +1,15 @@
+var path = require('path');
+
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     uglify: {
       options: {
-        sourceMapRoot: '/'
+        sourceMap: true
       },
       lib: {
         options: {
-          sourceMap: 'static/js/lib.map.js',
-          sourceMappingURL: '/static/js/lib.map.js'
+          sourceMapName: 'static/js/lib.map.js'
         },
         files: [{
           src: [
@@ -21,8 +22,7 @@ module.exports = function(grunt) {
       },
       app: {
         options: {
-          sourceMap: 'static/js/app.map.js',
-          sourceMappingURL: '/static/js/app.map.js'
+          sourceMapName: 'static/js/app.map.js'
         },
         files: [{
           src: [
@@ -37,32 +37,35 @@ module.exports = function(grunt) {
         }]
       }
     },
-    less: {
+    jshint: {
       options: {
-        compress: true,
-        sourceMap: true,
-        sourceMapRootpath: '/'
+        ignores: ['static/js/app/handlebars-partials.js']
+      },
+      all: [
+        'static/js/app/**/*.js',
+        'lib/**/*.js'
+      ]
+    },
+    sass: {
+      options: {
+        //sourceComments: 'map',
+        outputStyle: 'compressed'
       },
       lib: {
         options: {
-          sourceMapFilename: 'static/css/lib.map.css'
+          //sourceMap: 'static/css/lib.map.css'
         },
-        files: [{
-          src: [
-            'static/css/lib/bootstrap.css',
-            'static/css/lib/bootstrap-theme.css'
-          ],
-          dest: 'static/css/lib.min.css'
-        }]
+        files: {
+          'static/css/lib.min.css': 'static/css/lib/lib.scss'
+        }
       },
       app: {
         options: {
-          sourceMapFilename: 'static/css/app.map.css'
+          //sourceMap: 'static/css/app.map.css'
         },
-        files: [{
-          src: 'static/css/app/**/*.less',
-          dest: 'static/css/app.min.css'
-        }]
+        files: {
+          'static/css/app.min.css': 'static/css/app/app.scss'
+        }
       }
     },
     handlebars: {
@@ -83,20 +86,20 @@ module.exports = function(grunt) {
     },
     watch: {
       'uglify:lib': {
-        files: ['static/js/lib/**/*.js'],
+        files: ['static/js/lib/**/*.*'],
         tasks: ['clean:libjs', 'uglify:lib', 'md5:libjs', 'replace:handlebars']
       },
       'uglify:app': {
-        files: ['static/js/app/**/*.js'],
+        files: ['static/js/app/**/*.*'],
         tasks: ['clean:appjs', 'uglify:app', 'md5:appjs', 'replace:handlebars']
       },
-      'less:lib': {
-        files: ['static/css/lib/**/*.less', 'static/css/lib/**/*.css'],
-        tasks: ['clean:libcss', 'less:lib', 'md5:libcss', 'replace:handlebars']
+      'sass:lib': {
+        files: ['static/css/lib/**/*.*'],
+        tasks: ['clean:libcss', 'sass:lib', 'md5:libcss', 'replace:handlebars']
       },
-      'less:app': {
-        files: ['static/css/app/**/*.less'],
-        tasks: ['clean:appcss', 'less:app', 'md5:appcss', 'replace:handlebars']
+      'sass:app': {
+        files: ['static/css/app/**/*.*'],
+        tasks: ['clean:appcss', 'sass:app', 'md5:appcss', 'replace:handlebars']
       },
       handlebars: {
         files: 'views/partials/**/*.handlebars',
@@ -142,8 +145,7 @@ module.exports = function(grunt) {
         keepExtension: true,
         afterEach: function (fileChange) {
           grunt.file.delete(fileChange.oldPath);
-          grunt.config.set('md5:' + fileChange.oldPath.replace(/\./g, '/'), fileChange.newPath);
-          console.log('--- setting', 'md5:' + fileChange.oldPath.replace(/\./g, '/'))
+          grunt.config.set('md5:' + path.basename(fileChange.oldPath).replace(/\./g, '/'), path.basename(fileChange.newPath));
         }
       },
       'libjs': {
@@ -181,10 +183,10 @@ module.exports = function(grunt) {
         ],
         overwrite: true,
         replacements: [{
-          from: /static\/(js|css)\/(app|lib)\.(min|map)(-[a-fA-F0-9]{32})?\.(js|css)/g,
+          from: /(app|lib)\.(min|map)(-[a-fA-F0-9]{32})?\.(js|css)/g,
           to: function(matchedWord) {
-            var m = /static\/(js|css)\/(app|lib)\.(min|map)(-[a-fA-F0-9]{32})?\.(js|css)/g.exec(matchedWord);
-            return grunt.config.get('md5:static/' + m[1] + '/' + m[2] + '/' + m[3] + '/' + m[1]) || matchedWord;
+            var m = /(app|lib)\.(min|map)(-[a-fA-F0-9]{32})?\.(js|css)/g.exec(matchedWord);
+            return grunt.config.get('md5:' + m[1] + '/' + m[2] + '/' + m[4]) || matchedWord;
           }
         }]
       }
@@ -211,25 +213,14 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-handlebars');
-  grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-git-describe');
-  grunt.loadNpmTasks('grunt-md5');
-  grunt.loadNpmTasks('grunt-text-replace');
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-mocha');
-  grunt.loadNpmTasks('grunt-contrib-connect');
+  require('load-grunt-tasks')(grunt);
 
   grunt.event.once('git-describe', function (rev) {
     grunt.config.set('pkg.revision', rev);
   });
 
-  grunt.registerTask('dev', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'connect', 'watch']);
-  grunt.registerTask('test', ['mocha', 'mochaTest']);
+  grunt.registerTask('dev', ['clean', 'handlebars', 'uglify', 'sass', 'md5', 'replace', 'connect', 'watch']);
+  grunt.registerTask('test', ['jshint', 'mocha', 'mochaTest']);
   grunt.registerTask('archive', ['git-describe', 'compress']);
-  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'less', 'md5', 'replace', 'test', 'archive']);
+  grunt.registerTask('default', ['clean', 'handlebars', 'uglify', 'sass', 'md5', 'replace', 'test', 'archive']);
 };

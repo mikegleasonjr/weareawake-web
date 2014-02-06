@@ -2,6 +2,7 @@
 .idea/
 .DS_Store
 control.log
+.sass-cache
 archives/
 node_modules/
 static/js/app.*.js
