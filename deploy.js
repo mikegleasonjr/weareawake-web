@@ -13,49 +13,48 @@ var path = require('path'),
   };
 
 function deploy(lb, webpool1, webpool2, archive) {
-  async.series([
-    // deploy pool1
-    function(next) { changeLBServerState('disable', lb, webpool1, next); },
-    function(next) { deployPool(webpool1, archive, next); },
-    function(next) { changeLBServerState('enable', lb, webpool1, next); },
-    // deploy pool2
-    function(next) { changeLBServerState('disable', lb, webpool2, next); },
-    function(next) { deployPool(webpool2, archive, next); },
-    function(next) { changeLBServerState('enable', lb, webpool2, next); },
+  async.waterfall([
+    deployPool.bind(this, lb, webpool1, archive),
+    deployPool.bind(this, lb, webpool2, archive),
   ], function(err) {
     console.log(err ? 'ERROR: ' + err : 'DONE!');
   });
 }
 
-function changeLBServerState(action, lb, webpool, next) {
-  async.eachSeries(webpool, function(server, nextServer) {
-    lb.ssh('echo "' + action + ' server http00/' + server.address +'.weareawake.net" | socat stdio /var/lib/haproxy/stats', nextServer);
-  }, next);
+function deployPool(lb, webpool, archive, callback) {
+  async.waterfall([
+    changeLBServerState.bind(this, 'disable', lb, webpool),
+    deployArchive.bind(this, webpool, archive),
+    changeLBServerState.bind(this, 'enable', lb, webpool),
+  ], callback);
 }
 
-function deployPool(webpool, archive, next) {
-  async.each(webpool, function(server, nextServer){
-    var archiveFilename = path.basename(archive),
-      remoteDeployDir = '/srv/weareawake-web',
-      remoteArchivePath = path.join(remoteDeployDir, archiveFilename),
-      unpackedAppDirectoryName = path.basename(remoteArchivePath, '.tar.gz'),
-      remoteAppDir = path.join(remoteDeployDir, unpackedAppDirectoryName),
-      sshTasks = [
-        'tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir,
-        'rm ' + remoteArchivePath,
-        'cd ' + remoteAppDir + ' && npm install --production',
-        'initctl stop weareawake-web || true',
-        'rm /srv/weareawake-web/current || true',
-        'ln -s ' + remoteAppDir + ' /srv/weareawake-web/current',
-        'initctl start weareawake-web'
-      ];
+function changeLBServerState(action, lb, webpool, callback) {
+  async.eachSeries(webpool, function(server, next) {
+    lb.ssh('echo "' + action + ' server http00/' + server.address +'.weareawake.net" | socat stdio /var/lib/haproxy/stats', next);
+  }, callback);
+}
 
-    server.scp(archive, remoteDeployDir, function nextSsh() {
-      server.ssh(sshTasks.shift(), sshTasks.length ? nextSsh : nextServer);
-    });
-  }, function() {
-    next();
-  });
+function deployArchive(webpool, archive, callback) {
+  var archiveFilename = path.basename(archive),
+    remoteDeployDir = '/srv/weareawake-web',
+    remoteArchivePath = path.join(remoteDeployDir, archiveFilename),
+    unpackedAppDirectoryName = path.basename(remoteArchivePath, '.tar.gz'),
+    remoteAppDir = path.join(remoteDeployDir, unpackedAppDirectoryName);
+
+  async.each(webpool, function(server, done){
+    async.waterfall([
+      server.scp.bind(server, archive, remoteDeployDir),
+      server.ssh.bind(server, 'rm -rf ' + remoteAppDir),
+      server.ssh.bind(server, 'tar zxvf ' + remoteArchivePath + ' -C ' + remoteDeployDir),
+      server.ssh.bind(server, 'rm ' + remoteArchivePath),
+      server.ssh.bind(server, 'cd ' + remoteAppDir + ' && npm install --production'),
+      server.ssh.bind(server, 'initctl stop weareawake-web || true'),
+      server.ssh.bind(server, 'rm /srv/weareawake-web/current || true'),
+      server.ssh.bind(server, 'ln -s ' + remoteAppDir + ' /srv/weareawake-web/current'),
+      server.ssh.bind(server, 'initctl start weareawake-web'),
+    ], done);
+  }, callback);
 }
 
 (function(env, archive) {

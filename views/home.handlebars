@@ -1,11 +1,11 @@
-{{#content 'head'}}
+{{#content "head"}}
     <title>home</title>
 {{/content}}
 
-{{#content 'body'}}
-    <h1>{{ __ 'domain' }}</h1>
+{{#content "body"}}
+    <h1>{{ __ "domain" }}</h1>
 
-    {{#widget js='app.widgets.Map' cssclass='map'}}
+    {{#widget js="app.widgets.Map" cssclass="map"}}
         {{> widgets/map }}
     {{/widget}}
 {{/content}}
