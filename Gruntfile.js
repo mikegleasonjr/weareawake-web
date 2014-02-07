@@ -43,7 +43,8 @@ module.exports = function(grunt) {
       },
       all: [
         'static/js/app/**/*.js',
-        'lib/**/*.js'
+        'lib/**/*.js',
+        'deploy.js'
       ]
     },
     sass: {

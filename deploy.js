@@ -15,7 +15,7 @@ var path = require('path'),
 function deploy(lb, webpool1, webpool2, archive) {
   async.waterfall([
     deployPool.bind(this, lb, webpool1, archive),
-    deployPool.bind(this, lb, webpool2, archive),
+    deployPool.bind(this, lb, webpool2, archive)
   ], function(err) {
     console.log(err ? 'ERROR: ' + err : 'DONE!');
   });
@@ -25,13 +25,13 @@ function deployPool(lb, webpool, archive, callback) {
   async.waterfall([
     changeLBServerState.bind(this, 'disable', lb, webpool),
     deployArchive.bind(this, webpool, archive),
-    changeLBServerState.bind(this, 'enable', lb, webpool),
+    changeLBServerState.bind(this, 'enable', lb, webpool)
   ], callback);
 }
 
 function changeLBServerState(action, lb, webpool, callback) {
   async.eachSeries(webpool, function(server, next) {
-    lb.ssh('echo "' + action + ' server http00/' + server.address +'.weareawake.net" | socat stdio /var/lib/haproxy/stats', next);
+    lb.ssh('echo "' + action + ' server http00/' + server.address + '" | socat stdio /var/lib/haproxy/stats', next);
   }, callback);
 }
 
@@ -52,7 +52,7 @@ function deployArchive(webpool, archive, callback) {
       server.ssh.bind(server, 'initctl stop weareawake-web || true'),
       server.ssh.bind(server, 'rm /srv/weareawake-web/current || true'),
       server.ssh.bind(server, 'ln -s ' + remoteAppDir + ' /srv/weareawake-web/current'),
-      server.ssh.bind(server, 'initctl start weareawake-web'),
+      server.ssh.bind(server, 'initctl start weareawake-web')
     ], done);
   }, callback);
 }
