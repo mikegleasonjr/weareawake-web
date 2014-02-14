@@ -93,4 +93,22 @@ describe('integration', function() {
         });
     });
   });
+
+  describe('when requesting a page in french', function() {
+    it('should specify lang=fr in the html tag', function(done) {
+      request(app)
+        .get('/')
+        .set('host', 'fr.weareawake.net')
+        .expect(200, /<html lang="fr">/, done);
+    });
+  });
+
+  describe('when requesting a page in english', function() {
+    it('should specify lang=en in the html tag', function(done) {
+      request(app)
+        .get('/')
+        .set('host', 'en.weareawake.net')
+        .expect(200, /<html lang="en">/, done);
+    });
+  });
 });
