@@ -1,3 +1,5 @@
-var app = require('./lib/app');
+var app = require('./lib/app'),
+  config = require('./lib/config');
 
-module.exports = app.bootstrap(8000);
+// TODO: test port 8000
+module.exports = app.bootstrap(config.get('PORT'));
