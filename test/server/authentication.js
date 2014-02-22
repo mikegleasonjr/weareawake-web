@@ -2,7 +2,10 @@ var request = require('supertest'),
   should = require('should'),
   sinon = require('sinon'),
   passeport = require('passport'),
-  app = require('../../app');
+  app = require('../../app'),
+  redis = require('redis'),
+  config = require('../../lib/config'),
+  cache = redis.createClient(config.get('CACHE_PORT'), config.get('CACHE_HOST'));
 
 
 describe('authentication', function() {
@@ -27,26 +30,43 @@ describe('authentication', function() {
     });
 
     describe('when Facebook calls /auth/facebook/callback when authentication succeeds', function() {
+      var sessionId = null,
+        sessionUser = null,
+        authenticateStub = null;
+
+      before(function() {
+        sessionId = sessionUser = null;
+        authenticateStub = sinon.stub(passeport._strategies.facebook, 'authenticate', function(req) {
+          sessionId = req.sessionID;
+          this._verify('accessToken', 'refreshToken', { id: 12345678, displayName: 'Mocked User' }, function(err, user, info) {
+            if (err) return this.error(err);
+            if (!user) return this.fail(info);
+            sessionUser = user;
+            this.success(user, info);
+          }.bind(this));
+        });
+      });
+
+      after(function() {
+        authenticateStub.restore();
+      });
+
       it('should redirect to the authentication succeeded page', function(done) {
-        var getAccessTokenStub = sinon.stub(passeport._strategies.facebook._oauth2, 'getOAuthAccessToken', function(code, options, callback) {
-          var paramsFromFacebook = {};
-          var err = null;
-          callback(err, 'accessToken', 'refreshToken', paramsFromFacebook);
-        });
-
-        var loadFacebookProfileStub = sinon.stub(passeport._strategies.facebook, '_loadUserProfile', function(accessToken, callback) {
-          var err = null;
-          var profile = { id: '123', displayName: 'Mocked User' };
-          callback(err, profile);
-        });
-
         request(app)
           .get('/auth/facebook/callback?code=AQCPxK0FjCQu...')
           .expect('Location', /\/login\?fbsuccess=1/)
-          .expect(302, function(err) {
-            getAccessTokenStub.restore();
-            loadFacebookProfileStub.restore();
-            done(err);
+          .expect(302, done);
+      });
+
+      it('should keep the user in cache', function(done) {
+        request(app)
+          .get('/auth/facebook/callback?code=AQCPxK0FjCQu...')
+          .end(function() {
+            cache.get('sess:' + sessionId, function(err, reply) {
+              reply.should.be.type('string');
+              JSON.parse(reply).passport.user.should.equal(sessionUser.id);
+              done(err);
+            });
           });
       });
     });
@@ -81,27 +101,43 @@ describe('authentication', function() {
     });
 
     describe('when Twitter calls /auth/twitter/callback when authentication succeeds', function() {
-      it('should redirect to the authentication succeeded page', function(done) {
-        var authenticateStub = sinon.stub(passeport._strategies.twitter, 'authenticate', function() {
-          var self = this,
-            profile = { id: '123', displayName: 'Mocked User' };
-          this._verify('token', 'tokenSecret', profile, function(err, user, info) {
-            if (err) {
-              return self.error(err);
-            }
-            if (!user) {
-              return self.fail(info);
-            }
-            self.success(user, info);
-          });
-        });
+      var sessionId = null,
+        sessionUser = null,
+        authenticateStub = null;
 
+      before(function() {
+        sessionId = sessionUser = null;
+        authenticateStub = sinon.stub(passeport._strategies.twitter, 'authenticate', function(req) {
+          sessionId = req.sessionID;
+          this._verify('token', 'tokenSecret', { id: 12345678, displayName: 'Mocked User' }, function(err, user, info) {
+            if (err) return this.error(err);
+            if (!user) return this.fail(info);
+            sessionUser = user;
+            this.success(user, info);
+          }.bind(this));
+        });
+      });
+
+      after(function() {
+        authenticateStub.restore();
+      });
+
+      it('should redirect to the authentication succeeded page', function(done) {
         request(app)
           .get('/auth/twitter/callback?oauth_token=abv&oauth_verifier=xyz')
           .expect('Location', /\/login\?twsuccess=1/)
-          .expect(302, function(err) {
-            authenticateStub.restore();
-            done(err);
+          .expect(302, done);
+      });
+
+      it('should keep the user in cache', function(done) {
+        request(app)
+          .get('/auth/twitter/callback?oauth_token=abv&oauth_verifier=xyz')
+          .end(function() {
+            cache.get('sess:' + sessionId, function(err, reply) {
+              JSON.parse(reply).passport.user.should.equal(sessionUser.id);
+              reply.should.be.type('string');
+              done(err);
+            });
           });
       });
     });
@@ -127,27 +163,42 @@ describe('authentication', function() {
     });
 
     describe('when Google calls /auth/google/callback when authentication succeeds', function() {
-      it('should redirect to the authentication succeeded page', function(done) {
-        var authenticateStub = sinon.stub(passeport._strategies.google, 'authenticate', function() {
-          var self = this,
-            profile = { id: '123', displayName: 'Mocked User' };
-          this._verify('identifier', profile, function(err, user, info) {
-            if (err) {
-              return self.error(err);
-            }
-            if (!user) {
-              return self.fail(info);
-            }
-            self.success(user, info);
-          });
-        });
+      var sessionId = null,
+        sessionUser = null,
+        authenticateStub = null;
 
+      before(function() {
+        sessionId = sessionUser = null;
+        authenticateStub = sinon.stub(passeport._strategies.google, 'authenticate', function(req) {
+          sessionId = req.sessionID;
+          this._verify('identifier', { id: 12345678, displayName: 'Mocked User' }, function(err, user, info) {
+            if (err) return this.error(err);
+            if (!user) return this.fail(info);
+            sessionUser = user;
+            this.success(user, info);
+          }.bind(this));
+        });
+      });
+
+      after(function() {
+        authenticateStub.restore();
+      });
+
+      it('should redirect to the authentication succeeded page', function(done) {
         request(app)
           .get('/auth/google/callback')
           .expect('Location', /\/login\?googsuccess=1/)
-          .expect(302, function(err) {
-            authenticateStub.restore();
-            done(err);
+          .expect(302, done);
+      });
+
+      it('should keep the user in cache', function(done) {
+        request(app)
+          .get('/auth/google/callback')
+          .end(function() {
+            cache.get('sess:' + sessionId, function(err, reply) {
+              JSON.parse(reply).passport.user.should.equal(sessionUser.id);
+              done(err);
+            });
           });
       });
     });

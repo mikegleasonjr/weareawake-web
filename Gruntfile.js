@@ -3,6 +3,11 @@ var path = require('path');
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    env : {
+      prod: {
+        NODE_ENV : 'production'
+      }
+    },
     uglify: {
       options: {
         sourceMap: true
@@ -223,5 +228,5 @@ module.exports = function(grunt) {
   grunt.registerTask('archive', ['git-describe', 'compress']);
   grunt.registerTask('dev', ['clean', 'static', 'connect', 'watch']);
 
-  grunt.registerTask('default', ['test', 'archive']);
+  grunt.registerTask('default', ['env:prod', 'test', 'archive']);
 };
